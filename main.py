@@ -81,13 +81,8 @@ for index, row in data.iterrows():
     hashtags = row['HASHTAG'].split()  # Supondo que suas hashtags estejam em uma única coluna separada por espaços
 
     # Adicione as hashtags como nós do grafo
-    print(hashtags)
     for item in hashtags:
         G.add_node(item)
-
-    for node in G.nodes:
-        node['label'] = 'a'
-        print(node['label'])
 
     # Crie arestas entre todas as combinações de hashtags em um único tweet
     for i in range(len(hashtags)):
