@@ -82,7 +82,7 @@ for index, row in data.iterrows():
 
     # Adicione as hashtags como nós do grafo
     for item in hashtags:
-        G.add_node(item)
+        G.add_node(item, label='item')
 
     # Crie arestas entre todas as combinações de hashtags em um único tweet
     for i in range(len(hashtags)):
