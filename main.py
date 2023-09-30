@@ -68,13 +68,13 @@ def data_set():
 
     for tweet in lista_total:
         if len(extrair_hashtags(tweet['full_text'])) >= 1:
-            hashtags = extrair_hashtags(tweet['full_text'])
+            hashtags_ = extrair_hashtags(tweet['full_text'])
             hashtag = []
 
-            if len(hashtags) >= 1:
-                for item in hashtags:
-                    item = item.replace('#', '')
-                    hashtag.append(item)
+            if len(hashtags_) >= 1:
+                for item_ in hashtags_:
+                    item_ = item_.replace('#', '')
+                    hashtag.append(item_)
 
             lista_csv.append([tweet['full_text'], ' '.join(hashtag)])
 
@@ -122,17 +122,12 @@ for index, row in data.iterrows():
             else:
                 G.add_edge(hashtags[i], hashtags[j], weight=1)
 
-# Converta o grafo direcionado em um grafo não direcionado
-G_undirected = nx.Graph(G)
+
+G_undirected = G.to_undirected()
 predicted = node_classification.harmonic_function(G_undirected)
 print(predicted)
 
-
-def show_graph():
-    for i in range(0, len(lista_hashtags) - 1):
-        hashtag = lista_hashtags[i]
-        label = predicted[i]
-        if hashtag not in caracterized_hashtags:
-            print(f'{hashtag}: {label}')
-
-# Agora você tem um grafo direcionado onde os nós são hashtags e as arestas representam co-ocorrências
+# Imprima os nós com seus rótulos previstos
+for node, label in zip(G.nodes, predicted):
+    if node not in caracterized_hashtags:
+        print(f"Nó: {node}, Rótulo Previsto: {label}")
