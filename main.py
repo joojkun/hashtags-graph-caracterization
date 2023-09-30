@@ -3,22 +3,21 @@ import re
 import pandas as pd
 import networkx as nx
 import json
-
 from networkx.algorithms import node_classification
 
 
 def dicionario_csv(arquivo):
     # Abre o arquivo CSV em modo de leitura
-    with open(arquivo, mode='r', newline='', encoding='UTF-8') as arquivo_csv:
+    with open(arquivo, mode='r', newline='', encoding='UTF-8') as arquivo_csv_:
         # Cria um leitor CSV
-        leitor_csv = csv.DictReader(arquivo_csv)
+        leitor_csv = csv.DictReader(arquivo_csv_)
         dicionario_de_dados = {}
 
         # Itera sobre as linhas do arquivo CSV
-        for linha in leitor_csv:
+        for line in leitor_csv:
             # Obtém a chave e o valor da linha
-            chave = linha['HASHTAG']
-            valor = linha['ORIENTATION']
+            chave = line['HASHTAG']
+            valor = line['ORIENTATION']
 
             # Adiciona a chave e o valor ao dicionário
             dicionario_de_dados[chave] = valor
@@ -64,7 +63,7 @@ def data_set():
     lista8 = ler_json_e_transformar_em_lista('data-set-twitter-elections/scraped_tweets_11_04_22.json')
     lista9 = ler_json_e_transformar_em_lista('data-set-twitter-elections/scraped_tweets_11_11_22.json')
     lista_total = lista1 + lista2 + lista3 + lista4 + lista5 + lista6 + lista7 + lista8 + lista9
-    lista_csv = []
+    lista = []
 
     for tweet in lista_total:
         if len(extrair_hashtags(tweet['full_text'])) >= 1:
@@ -76,19 +75,19 @@ def data_set():
                     item_ = item_.replace('#', '')
                     hashtag.append(item_)
 
-            lista_csv.append([tweet['full_text'], ' '.join(hashtag)])
+            lista.append([tweet['full_text'], ' '.join(hashtag)])
 
     # Nome do arquivo CSV de destino
     nome_arquivo = "dados.csv"
 
     # Escreva a lista de dados em um arquivo CSV
-    with open(nome_arquivo, mode="w", encoding="utf-8") as arquivo_csv:
-        escritor_csv = csv.writer(arquivo_csv, delimiter=",")
+    with open(nome_arquivo, mode="w", encoding="utf-8") as arquivo:
+        escritor_csv_ = csv.writer(arquivo, delimiter=",")
 
         # Escreva cada linha da lista como uma linha no arquivo CSV
-        for linha in lista_csv:
-            if any(linha):
-                escritor_csv.writerow(linha)
+        for linha_ in lista:
+            if any(linha_):
+                escritor_csv_.writerow(linha_)
 
     print(f"Arquivo CSV '{nome_arquivo}' criado com sucesso.")
 
@@ -97,7 +96,7 @@ def data_set():
 data = pd.read_csv('dados.csv')
 
 # Crie um objeto de grafo direcionado (para representar as co-ocorrências)
-G = nx.DiGraph()
+G = nx.Graph()
 caracterized_hashtags = dicionario_csv('hashtags_populares.csv')
 lista_hashtags = []
 
@@ -108,7 +107,7 @@ for index, row in data.iterrows():
     # Adicione as hashtags como nós do grafo
     for item in hashtags:
         lista_hashtags.append(item)
-        if item in caracterized_hashtags:
+        if item in caracterized_hashtags:  # Caso a hashtag já tenha sido carcterizada manualmente
             G.add_node(item, label=caracterized_hashtags[item])
         else:
             G.add_node(item)
@@ -122,10 +121,25 @@ for index, row in data.iterrows():
             else:
                 G.add_edge(hashtags[i], hashtags[j], weight=1)
 
+# Caracterização das hashtags que ainda não foram caracterizadas
+predicted = node_classification.harmonic_function(G)
 
-G_undirected = G.to_undirected()
-predicted = node_classification.harmonic_function(G_undirected)
+lista_csv = []  # Lista para adicionar as hashtags caracterizadas, que serão salvas em arquivo csv
+# Nome do arquivo CSV de destino
+arq = "nome_arquivo.csv"
 
 # Imprima os nós com seus rótulos previstos
 for node, label in zip(G.nodes, predicted):
     print(f"Hashtag: {node}, Orientation: {label}")
+    lista_csv.append([node, label])
+
+# Escreva a lista de dados em um arquivo CSV
+with open(arq, mode="w", encoding="utf-8") as arquivo_csv:
+    escritor_csv = csv.writer(arquivo_csv, delimiter=",")
+
+    # Escreva cada linha da lista como uma linha no arquivo CSV
+    for linha in lista_csv:
+        if any(linha):
+            escritor_csv.writerow(linha)
+
+print(f"Arquivo CSV '{arq}' criado com sucesso.")
