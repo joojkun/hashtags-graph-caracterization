@@ -125,9 +125,7 @@ for index, row in data.iterrows():
 
 G_undirected = G.to_undirected()
 predicted = node_classification.harmonic_function(G_undirected)
-print(predicted)
 
 # Imprima os nós com seus rótulos previstos
 for node, label in zip(G.nodes, predicted):
-    if node not in caracterized_hashtags:
-        print(f"Nó: {node}, Rótulo Previsto: {label}")
+    print(f"Hashtag: {node}, Orientation: {label}")
