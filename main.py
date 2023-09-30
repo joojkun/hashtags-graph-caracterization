@@ -5,6 +5,27 @@ import networkx as nx
 import json
 
 
+def dicionario_csv(arquivo):
+    # Abre o arquivo CSV em modo de leitura
+    with open(arquivo, mode='r', newline='', encoding='UTF-8') as arquivo_csv:
+        # Cria um leitor CSV
+        leitor_csv = csv.DictReader(arquivo_csv)
+        dicionario_de_dados = {}
+
+        # Itera sobre as linhas do arquivo CSV
+        for linha in leitor_csv:
+            # Obtém a chave e o valor da linha
+            chave = linha['HASHTAG']
+            valor = linha['ORIENTATION']
+
+            # Adiciona a chave e o valor ao dicionário
+            dicionario_de_dados[chave] = valor
+
+    # Agora, dicionario_de_dados contém os dados do CSV como um dicionário
+    # onde as chaves são da primeira coluna e os valores são da segunda coluna
+    return dicionario_de_dados
+
+
 def ler_json_e_transformar_em_lista(nome_arquivo):
     try:
         with open(nome_arquivo, 'r', encoding='utf-8') as arquivo:
@@ -75,6 +96,7 @@ data = pd.read_csv('dados.csv')
 
 # Crie um objeto de grafo direcionado (para representar as co-ocorrências)
 G = nx.DiGraph()
+caracterized_hashtags = dicionario_csv('hashtags_populares.csv')
 
 # Itere sobre cada linha do seu conjunto de dados
 for index, row in data.iterrows():
@@ -82,7 +104,11 @@ for index, row in data.iterrows():
 
     # Adicione as hashtags como nós do grafo
     for item in hashtags:
-        G.add_node(item, label='item')
+        if item in caracterized_hashtags:
+            print(item)
+            G.add_node(item, label=caracterized_hashtags[item])
+        else:
+            G.add_node(item)
 
     # Crie arestas entre todas as combinações de hashtags em um único tweet
     for i in range(len(hashtags)):
