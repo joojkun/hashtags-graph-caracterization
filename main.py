@@ -4,6 +4,8 @@ import pandas as pd
 import networkx as nx
 import json
 
+from networkx.algorithms import node_classification
+
 
 def dicionario_csv(arquivo):
     # Abre o arquivo CSV em modo de leitura
@@ -97,6 +99,7 @@ data = pd.read_csv('dados.csv')
 # Crie um objeto de grafo direcionado (para representar as co-ocorrências)
 G = nx.DiGraph()
 caracterized_hashtags = dicionario_csv('hashtags_populares.csv')
+lista_hashtags = []
 
 # Itere sobre cada linha do seu conjunto de dados
 for index, row in data.iterrows():
@@ -104,8 +107,8 @@ for index, row in data.iterrows():
 
     # Adicione as hashtags como nós do grafo
     for item in hashtags:
+        lista_hashtags.append(item)
         if item in caracterized_hashtags:
-            print(item)
             G.add_node(item, label=caracterized_hashtags[item])
         else:
             G.add_node(item)
@@ -118,5 +121,18 @@ for index, row in data.iterrows():
                 G[hashtags[i]][hashtags[j]]['weight'] += 1
             else:
                 G.add_edge(hashtags[i], hashtags[j], weight=1)
+
+# Converta o grafo direcionado em um grafo não direcionado
+G_undirected = nx.Graph(G)
+predicted = node_classification.harmonic_function(G_undirected)
+print(predicted)
+
+
+def show_graph():
+    for i in range(0, len(lista_hashtags) - 1):
+        hashtag = lista_hashtags[i]
+        label = predicted[i]
+        if hashtag not in caracterized_hashtags:
+            print(f'{hashtag}: {label}')
 
 # Agora você tem um grafo direcionado onde os nós são hashtags e as arestas representam co-ocorrências
