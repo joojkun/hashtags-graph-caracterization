@@ -134,12 +134,11 @@ for node, label in zip(G.nodes, predicted):
     lista_csv.append([node, label])
 
 # Escreva a lista de dados em um arquivo CSV
-with open(arq, mode="w", encoding="utf-8") as arquivo_csv:
-    escritor_csv = csv.writer(arquivo_csv, delimiter=",")
+with open('nome_do_arquivo.csv', 'w', newline='', encoding='utf-8') as arquivo_csv:
+    escritor_csv = csv.writer(arquivo_csv)
 
-    # Escreva cada linha da lista como uma linha no arquivo CSV
-    for linha in lista_csv:
-        if any(linha):
-            escritor_csv.writerow(linha)
+    # Escreve cada item do dicionário em uma linha separada
+    for chave, valor in lista_csv:
+        escritor_csv.writerow([chave, valor])
 
-print(f"Arquivo CSV '{arq}' criado com sucesso.")
+print(f'O arquivo foi criado com sucesso.')
